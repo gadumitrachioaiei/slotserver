@@ -109,6 +109,44 @@ func TestMachineWithSpin(t *testing.T) {
 	}
 }
 
+var prize int
+var lines [][]int
+
+// BenchmarkBaseWinnings-8   	  200000	      8609 ns/op	      36 B/op	       0 allocs/op
+func BenchmarkBaseWinnings(b *testing.B) {
+	m := NewMachine()
+	var w int
+	var l [][]int
+	for i := 0; i < b.N; i++ {
+		// generate random stops
+		b.StopTimer()
+		stops := m.spin()
+		b.StartTimer()
+		// call baseWinnings on them
+		w, l = m.baseWinnings(stops)
+	}
+	prize = w
+	lines = l
+}
+
+// BenchmarkBaseWinningsTree-8   	  300000	      5424 ns/op	    1898 B/op	      32 allocs/op
+func BenchmarkBaseWinningsTree(b *testing.B) {
+	m := NewMachine()
+	var w int
+	var l [][]int
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// generate random stops
+		b.StopTimer()
+		stops := m.spin()
+		b.StartTimer()
+		// call baseWinnings on them
+		w, l = m.baseWinningsTree(stops)
+	}
+	prize = w
+	lines = l
+}
+
 // debug returns information for this result so you can understand if it is correct
 func (r *Result) debug() string {
 	var buf strings.Builder

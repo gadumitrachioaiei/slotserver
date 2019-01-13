@@ -147,11 +147,13 @@ type Machine struct {
 	freeSpins           int            // number of free spins in case Scatter happens
 	freeSpinsMultiplier int            // win multiplier in case of free spins winnings
 	testSpin            func() [][]int // set only from tests
+	payLinesTree        *N             // paylines as a tree
 }
 
 // NewMachine returns a machine with default settings
 func NewMachine() *Machine {
 	m := Machine{c: len(payLines), freeSpins: 10, freeSpinsMultiplier: 3}
+	m.payLinesTree = tree(payLines)
 	return &m
 }
 
