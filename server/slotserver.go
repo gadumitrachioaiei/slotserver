@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/http/pprof"
 
 	"github.com/gadumitrachioaiei/slotserver/slot"
 )
@@ -21,6 +22,7 @@ func New(addr string) *Server {
 // Start starts the atkins-diet slot machine server in the same goroutine
 func (s *Server) Start() error {
 	mux := http.NewServeMux()
+	profile(mux)
 	mux.Handle("/api/machines/atkins-diet/spins", slotMachineHandler{slot.NewMachine()})
 	server := http.Server{Addr: s.addr, Handler: mux}
 	if err := server.ListenAndServe(); err != nil {
@@ -78,4 +80,12 @@ func (h slotMachineHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request)
 	}
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	rw.Write(rData)
+}
+
+func profile(mux *http.ServeMux) {
+	mux.HandleFunc("/debug/pprof/", pprof.Index)
+	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 }
