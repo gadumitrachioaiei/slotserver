@@ -6,7 +6,8 @@ http://giorasimchoni.com/2017/05/06/2017-05-06-don-t-drink-and-gamble/
 The purpose of this code is to understand the game and the implementation. There are very few tests. There are improvements that can be made performance wise.
 
 Just run the server and try requests, e.g.:
-```curl -v -X POST --data '{"uid": "xyz", "chips": 1000, "bet":100}' "http://localhost:8080/api/machines/atkins-diet/spins"```
+```curl -v -X POST --data '{"uid": "xyz", "chips": 1000, "bet":100}' "http://127.0.0.1:9999/api/machines/atkins-diet/spins"```
+```grpcurl -plaintext -import-path third_party/proto/ -import-path .  -proto  proto/bet/v1/bet.proto -d '{"uid": "xyz", "chips": 1000, "bet":100}' localhost:8080 bet.v1.SlotMachineService/CreateBet```
 Example response:
 ```{
     "Spins": [
@@ -79,3 +80,10 @@ Besides the prize found in the scatter pay table, at least 3 scatter symbols wil
 A free spin can also give you more free spins, unlimited.
 3. All pay lines that contain a pay table entry win.
 3. All prizes are multiplied by wager / number of pay lines.
+
+Header: :status: 200
+Header: grpc-status: 13
+Header: grpc-message: placing the bet: Not enough chips
+    
+    
+    

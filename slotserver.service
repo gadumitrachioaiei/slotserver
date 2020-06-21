@@ -1,0 +1,17 @@
+[Unit]
+Description=Slotserver daemon
+
+[Service]
+# if we set it as notify we would need to use github.com/coreos/go-systemd/daemon to talk to systemd manager
+# and handle SIGTERM as well
+Type=notify
+ExecStart=/usr/local/sbin/slotserver
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+KillSignal=SIGTERM
+Restart=on-failure
+RestartSec=100ms
+RestartPreventExitStatus=255
+
+[Install]
+WantedBy=multi-user.target
