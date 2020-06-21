@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package bet.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/gadumitrachioaiei/slotserver/proto/gen/go/bet/v1;bet";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "SlotServer";
+        version: "1.0";
+        contact: {
+            name: "slotserver";
+            url: "https://github.com/gadumitrachioaiei/slotserver";
+            email: "gabi.adumitrachioaiei@gmail.com";
+        };
+        license: {
+            name: "BSD 3-Clause License";
+            url: "https://github.com/gadumitrachioaiei/slotserver";
+        };
+    };
+
+    schemes: HTTP;
+    schemes: HTTPS;
+    consumes: "application/json";
+    produces: "application/json";
+};
+
+
+service SlotMachineService {
+  rpc CreateBet(CreateBetRequest) returns (CreateBetResponse) {
+    option (google.api.http) = {
+      post: "/v1/bet"
+      body: "*"
+    };
+  }
+}
+
+message CreateBetRequest {
+  string uid = 1; // user id
+  int32 chips = 2; // how many chips the user has
+  int32 bet = 3; // how many chips the user bet
+}
+
+message CreateBetResponse {
+  CreateBetRequest jwt = 1; // the user bet
+  repeated SpinDescription spins = 2; // the spins the bet triggered
+  int32 win = 3; // how much the user won
+  int32 chips = 4; // how many chips the user has after the bet
+  int32 bet = 5; // how many chips the user bet
+}
+
+message SpinDescription {
+  SpinType type = 1;
+  int32 win = 2; // how much this spin won
+  repeated SpinLine lines = 3; // stops of the spin
+  repeated PayLine pay_lines = 4; // pay lines, if any
+}
+
+enum SpinType {
+  SPIN_TYPE_UNSPECIFIED = 0;
+  SPIN_TYPE_MAIN = 1;
+  SPIN_TYPE_FREE = 2;
+}
+
+message SpinLine {
+  repeated int32 value = 1;
+}
+
+message PayLine {
+  repeated int32 value = 1;
+}

@@ -6,7 +6,9 @@ http://giorasimchoni.com/2017/05/06/2017-05-06-don-t-drink-and-gamble/
 The purpose of this code is to understand the game and the implementation. There are very few tests. There are improvements that can be made performance wise.
 
 Just run the server and try requests, e.g.:
-```curl -v -X POST --data '{"uid": "xyz", "chips": 1000, "bet":100}' "http://localhost:8080/api/machines/atkins-diet/spins"```
+```curl -X POST --data '{"uid": "xyz", "chips": 1000, "bet":100}' "http://127.0.0.1:9090/api/machines/atkins-diet/spins"```
+
+```grpcurl -plaintext -import-path third_party/proto/ -import-path .  -proto  proto/bet/v1/bet.proto -d '{"uid": "xyz", "chips": 1000, "bet":100}' localhost:8080 bet.v1.SlotMachineService/CreateBet```
 Example response:
 ```{
     "Spins": [
@@ -79,3 +81,31 @@ Besides the prize found in the scatter pay table, at least 3 scatter symbols wil
 A free spin can also give you more free spins, unlimited.
 3. All pay lines that contain a pay table entry win.
 3. All prizes are multiplied by wager / number of pay lines.
+
+**GRPC
+You can make requests to the equivalent grpc service as well.
+Discover it, e.g.:
+grpcurl -import-path third_party/proto -import-path proto -proto proto/bet/v1/bet.proto describe bet.v1.CreateBetRequest
+Make a request:
+grpcurl -plaintext -d '{"uid": "xyz", "chips": 1000, "bet":100}' localhost:8080 bet.v1.SlotMachineService.CreateBet
+We can also generate and start an http proxy for our grpc service using grpc-gateway. We can than use curl directly to make requests.
+And we can also generate documentation for this http proxy, so basically we can document our grpc service.
+
+To annotate code, generate spec, and serve it, we use go-swagger: https://github.com/go-swagger/go-swagger
+https://medium.com/@pedram.esmaeeli/generate-swagger-specification-from-go-source-code-648615f7b9d9
+swagger serve swagger.json
+
+Support for openapi v3 for go apis ?
+https://github.com/getkin/kin-openapi
+
+You can serve documentation from an openapi 3.0 spec file, using swagger-ui:
+docker run --rm -d -p 8080:8080 -v ${pwd}:/local -e SWAGGER_JSON=/local/api.json swaggerapi/swagger-ui
+It may also work with open source tools, like openapi-generator. but it doesn't generate very nice doc:
+openapi-generator generate -g html -i ./api.json
+This doesn't work yet:
+openapi-generator generate -g html2 -i ./api.json
+
+We can convert a v2 spec to a v3 spec, although I don't know why it would be useful:
+https://levelup.gitconnected.com/go-swagger-and-open-api-e6b6ea4ce48f
+
+I think now we can only use swagger-hub to create doc for existing apis in v3 format. I should look into it.

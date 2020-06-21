@@ -1,0 +1,12 @@
+build:
+  roots:
+    - proto
+    - third_party/proto
+lint:
+  ignore:
+    - google
+breaking:
+  ignore:
+    - gogoproto
+  use:
+    - WIRE_JSON

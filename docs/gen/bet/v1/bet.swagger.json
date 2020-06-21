@@ -1,0 +1,196 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "SlotServer",
+    "version": "1.0",
+    "contact": {
+      "name": "slotserver",
+      "url": "https://github.com/gadumitrachioaiei/slotserver",
+      "email": "gabi.adumitrachioaiei@gmail.com"
+    },
+    "license": {
+      "name": "BSD 3-Clause License",
+      "url": "https://github.com/gadumitrachioaiei/slotserver"
+    }
+  },
+  "tags": [
+    {
+      "name": "SlotMachineService"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/bet": {
+      "post": {
+        "operationId": "SlotMachineService_CreateBet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateBetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateBetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SlotMachineService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateBetRequest": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "chips": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bet": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1CreateBetResponse": {
+      "type": "object",
+      "properties": {
+        "jwt": {
+          "$ref": "#/definitions/v1CreateBetRequest"
+        },
+        "spins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1SpinDescription"
+          }
+        },
+        "win": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "chips": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "bet": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1PayLine": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "v1SpinDescription": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1SpinType"
+        },
+        "win": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1SpinLine"
+          }
+        },
+        "payLines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PayLine"
+          }
+        }
+      }
+    },
+    "v1SpinLine": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "v1SpinType": {
+      "type": "string",
+      "enum": [
+        "SPIN_TYPE_UNSPECIFIED",
+        "SPIN_TYPE_MAIN",
+        "SPIN_TYPE_FREE"
+      ],
+      "default": "SPIN_TYPE_UNSPECIFIED"
+    }
+  }
+}

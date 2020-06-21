@@ -48,8 +48,9 @@ var testCases = []TestCase{
 			Bet:   100,
 			Spins: []Spin{
 				{
-					Type: "main",
-					Win:  50,
+					TypeInt: spinTypeToInt(SpinTypeMain),
+					Type:    SpinTypeMain,
+					Win:     50,
 					PayLines: [][]int{
 						{2, 1, 2, 1, 2},
 					},
@@ -79,8 +80,9 @@ var testCases = []TestCase{
 			Bet:   100,
 			Spins: []Spin{
 				{
-					Type: "main",
-					Win:  75,
+					TypeInt: spinTypeToInt(SpinTypeMain),
+					Type:    SpinTypeMain,
+					Win:     75,
 					PayLines: [][]int{
 						{1, 1, 0, 1, 1},
 					},

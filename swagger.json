@@ -1,0 +1,174 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Our slotserver API allows placing bets for an atkins-diet slot machine.",
+    "title": "slotserver.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/api/machines/atkins-diet/spins": {
+      "post": {
+        "tags": [
+          "casino"
+        ],
+        "summary": "You place a bet and spin an atkins-diet slot machine.",
+        "operationId": "createBet",
+        "parameters": [
+          {
+            "description": "User and bet data.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/createBet"
+          },
+          "default": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Request": {
+      "type": "object",
+      "required": [
+        "UID",
+        "Chips",
+        "Bet"
+      ],
+      "properties": {
+        "Bet": {
+          "description": "amount of chips bet",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Chips": {
+          "description": "chips balance",
+          "type": "integer",
+          "format": "int64"
+        },
+        "UID": {
+          "description": "user id",
+          "type": "string"
+        }
+      },
+      "x-go-package": "github.com/gadumitrachioaiei/slotserver/docs"
+    },
+    "Response": {
+      "type": "object",
+      "properties": {
+        "Bet": {
+          "description": "wager of the bet",
+          "type": "integer",
+          "format": "int64"
+        },
+        "Chips": {
+          "description": "chips after all spins",
+          "type": "integer",
+          "format": "int64"
+        },
+        "JWT": {
+          "$ref": "#/definitions/Request"
+        },
+        "Spins": {
+          "description": "spins of the slot machine",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Spin"
+          }
+        },
+        "Win": {
+          "description": "sum of wins from all spins",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "github.com/gadumitrachioaiei/slotserver/docs"
+    },
+    "Spin": {
+      "description": "Spin represents a spin of reels",
+      "type": "object",
+      "properties": {
+        "PayLines": {
+          "description": "which lines won",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "Stops": {
+          "description": "stops for this spin",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "Type": {
+          "type": "string",
+          "enum": [
+            "MAIN",
+            "FREE"
+          ]
+        },
+        "Win": {
+          "description": "how much this spin won",
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "github.com/gadumitrachioaiei/slotserver/docs"
+    }
+  },
+  "responses": {
+    "createBet": {
+      "description": "Bet created",
+      "schema": {
+        "$ref": "#/definitions/Response"
+      }
+    },
+    "errorResponse": {
+      "description": "Error response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "Code": {
+            "description": "status code",
+            "type": "integer",
+            "format": "int64",
+            "example": 400
+          },
+          "Message": {
+            "description": "error message",
+            "type": "string",
+            "example": "incorrect chips and wager amount"
+          }
+        }
+      }
+    }
+  }
+}

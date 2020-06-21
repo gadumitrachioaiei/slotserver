@@ -125,15 +125,42 @@ var scatterPayTable = map[int]int{
 	3: 5,
 }
 
+// SpinTypeString represents the type of spin
+type SpinTypeInt int32
+
+const (
+	SpinTypeIntMain SpinTypeInt = iota + 1
+	SpinTypeIntFree
+)
+
+// SpinTypeString represents the type of spin, as a string
+type SpinType string
+
+const (
+	SpinTypeMain SpinType = "MAIN"
+	SpinTypeFree SpinType = "FREE"
+)
+
+func spinTypeToInt(typ SpinType) SpinTypeInt {
+	switch typ {
+	case SpinTypeMain:
+		return SpinTypeIntMain
+	case SpinTypeFree:
+		return SpinTypeIntFree
+	}
+	return 0
+}
+
 // Spin represents a spin of reels
 type Spin struct {
-	Type     string  // main or free spin
+	TypeInt  SpinTypeInt `json:"-"` // this field should match the Type field, and it is here just for the needs of the rpc service
+	Type     SpinType
 	Stops    [][]int // stops for this spin
 	Win      int     // how much this spin won
 	PayLines [][]int // which lines won
 }
 
-// Result expresses the result of a bet and it can contain multiple spins as free spins of main one
+// Result expresses the result of a bet and it can contain multiple spins: the main one and maybe free spins
 type Result struct {
 	Spins []Spin
 	Win   int // sum of wins from all spins
@@ -159,8 +186,8 @@ func NewMachine() *Machine {
 
 // Bet bets the wager and returns the result
 func (m *Machine) Bet(chips, wager int) (*Result, error) {
-	if wager > chips {
-		return nil, errors.New("Not enough chips")
+	if wager > chips || chips <= 0 || wager <= 0 {
+		return nil, errors.New("incorrect chips and wager amount")
 	}
 	r := m.bet(wager, false)
 	r.Chips = chips - wager + r.Win
@@ -181,16 +208,16 @@ func (m *Machine) bet(wager int, freeSpinMode bool) *Result {
 	scatterWins := scatterWinnings(stops)
 	// current spin result
 	var result Result
-	typ := "main"
+	var typ SpinType = SpinTypeMain
 	if freeSpinMode {
-		typ = "free"
+		typ = SpinTypeFree
 	}
 	wins = (wins + scatterWins) * (wager / m.c)
 	if freeSpinMode {
 		wins *= m.freeSpinsMultiplier
 	}
 	result = Result{
-		Spins: []Spin{{Type: typ, Win: wins, Stops: stops, PayLines: lines}},
+		Spins: []Spin{{TypeInt: spinTypeToInt(typ), Type: typ, Win: wins, Stops: stops, PayLines: lines}},
 		Win:   wins,
 	}
 	if scatterWins == 0 {
