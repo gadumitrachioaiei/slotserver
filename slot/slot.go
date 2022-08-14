@@ -1,7 +1,7 @@
 package slot
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"math/rand"
 	"time"
@@ -143,26 +143,48 @@ type Result struct {
 
 // Machine is an Atkin Diet slot machine
 type Machine struct {
-	c                   int            // number of pay lines
-	freeSpins           int            // number of free spins in case Scatter happens
-	freeSpinsMultiplier int            // win multiplier in case of free spins winnings
-	testSpin            func() [][]int // set only from tests
+	userService         UserService
+	c                   int // number of pay lines
+	freeSpins           int // number of free spins in case Scatter happens
+	freeSpinsMultiplier int // win multiplier in case of free spins winnings
+
+	testSpin func() [][]int // set only from tests
+}
+
+type User struct {
+	ID    string
+	Chips int
+}
+
+// UserService represents the user service.
+type UserService interface {
+	// Update updates the specified user with the specified chips.
+	//
+	// The semantics needs to be serializable.
+	Update(ctx context.Context, id string, amount int) (User, error)
 }
 
 // NewMachine returns a machine with default settings
-func NewMachine() *Machine {
-	m := Machine{c: len(payLines), freeSpins: 10, freeSpinsMultiplier: 3}
+func NewMachine(userService UserService) *Machine {
+	m := Machine{userService: userService, c: len(payLines), freeSpins: 10, freeSpinsMultiplier: 3}
 	return &m
 }
 
 // Bet bets the wager and returns the result
-func (m *Machine) Bet(chips, wager int) (*Result, error) {
-	if wager > chips {
-		return nil, errors.New("Not enough chips")
+func (m *Machine) Bet(ctx context.Context, userID string, wager int) (*Result, error) {
+	user, err := m.userService.Update(ctx, userID, -wager)
+	if err != nil {
+		return nil, err
 	}
 	r := m.bet(wager, false)
-	r.Chips = chips - wager + r.Win
+	if r.Win > 0 {
+		user, err = m.userService.Update(ctx, userID, r.Win)
+		if err != nil {
+			return nil, err
+		}
+	}
 	r.Bet = wager
+	r.Chips = user.Chips
 	return r, nil
 }
 
